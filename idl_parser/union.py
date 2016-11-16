@@ -1,12 +1,17 @@
-import os, sys, traceback
+'''
+Created on 11 nov 2016
 
-from . import node, union, exception
+@author: fsimone
+'''
+import sys
+
+from . import node, exception
 from . import type as idl_type
 
 
-class IDLMember(node.IDLNode):
+class IDLUnionMember(node.IDLNode):
     def __init__(self, parent):
-        super(IDLMember, self).__init__('IDLMember', '', parent)
+        super(IDLUnionMember, self).__init__('IDLUnionMember', '', parent)
         self._verbose = True
         self._type = None
         self._annotation = ''
@@ -57,10 +62,6 @@ class IDLMember(node.IDLNode):
             #return typs[0]
         return self._type
     
-    @type.setter
-    def type(self, value):
-        self._type = value
-    
 
     def get_type(self, extract_typedef=False):
         if extract_typedef:
@@ -79,10 +80,10 @@ class IDLMember(node.IDLNode):
         return self._annotation
               
 
-class IDLStruct(node.IDLNode):
+class IDLUnion(node.IDLNode):
     
     def __init__(self, name, parent):
-        super(IDLStruct, self).__init__('IDLStruct', name.strip(), parent)
+        super(IDLUnion, self).__init__('IDLUnion', name.strip(), parent)
         self._verbose = True
         self._members = []
         self.sep = '::'
@@ -124,15 +125,6 @@ class IDLStruct(node.IDLNode):
                 if self._verbose: sys.stdout.write('# Error. No brace "}".\n')
                 raise exception.InvalidIDLSyntaxError()
             
-            elif token == 'union':
-                name_ = token_buf.pop()
-                m = IDLMember(self)
-                u = union.IDLUnion(name_, self)
-                u.parse_tokens(token_buf, filepath=filepath)
-                m.type = u
-                self._members.append(m)
-                continue
-            
             elif token == '}':
                 token = token_buf.pop()
                 if not token == ';':
@@ -147,11 +139,9 @@ class IDLStruct(node.IDLNode):
             block_tokens.append(token)
 
         self._post_process()
-        
-        
             
     def _parse_block(self, blocks):
-        v = IDLMember(self)
+        v = IDLUnionMember(self)
         v.parse_blocks(blocks, self.filepath)
         self._members.append(v)
     
@@ -168,6 +158,11 @@ class IDLStruct(node.IDLNode):
                 return m
         return None
     
+    
     def forEachMember(self, func):
         for m in self._members:
             func(m)
+
+    def post_process(self):
+        #self._type = self.refine_typename(self.type)
+        pass

@@ -1,6 +1,6 @@
-import os, sys, traceback
+#import os, sys, traceback
 
-from . import node
+from . import node, exception
 
 sep = '::'
 
@@ -8,7 +8,7 @@ primitive = [
     'boolean',
     'char', 'byte', 'octet', 
     'short', 'wchar', 
-    'long', 
+    'long', 'int',
     'float',
     'double',
     'string',
@@ -23,12 +23,11 @@ def is_primitive(name):
 def IDLType(name, parent):
     if name == 'void':
         return IDLVoid(name, parent)
-
     elif name.find('sequence') >= 0:
         return IDLSequence(name, parent)
     elif name.find('[') >= 0:
         return IDLArray(name, parent)
-
+    
     if is_primitive(name):
         return IDLPrimitive(name, parent)
 
@@ -61,8 +60,8 @@ class IDLSequence(IDLTypeBase):
     def __init__(self, name, parent):
         super(IDLSequence, self).__init__('IDLSequence', name, parent.root_node)
         self._verbose = True
-        if name.find('sequence') < 0:
-            raise InvalidIDLSyntaxError()
+        if name.find('sequence<') < 0:
+            raise exception.InvalidIDLSyntaxError("-- IDL sequence must have syntax: sequence<T>")
         typ_ = name[name.find('<')+1 : name.find('>')]
         self._type = IDLType(typ_, parent)
         self._is_primitive = False #self.inner_type.is_primitive
@@ -135,7 +134,7 @@ class IDLArray(IDLTypeBase):
 
         self._verbose = True
         if name.find('[') < 0:
-            raise InvalidIDLSyntaxError()
+            raise exception.InvalidIDLSyntaxError()
         primitive_type_name = name[:name.find('[')]
         size = name[name.find('[')+1 : name.find(']')]
         inner_type_name = primitive_type_name + name[name.find(']')+1:]

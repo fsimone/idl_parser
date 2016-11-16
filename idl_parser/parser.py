@@ -1,12 +1,13 @@
 import os, sys
 
-from . import  module, token_buffer
+from . import  channel, module, token_buffer, exception
 from . import type as idl_type
 
 class IDLParser():
 
     def __init__(self, idl_dirs=[]):
-        self._global_module = module.IDLModule()
+        #self._global_module = module.IDLModule()
+        self._global_module = channel.IDLChannel()
         self._dirs = idl_dirs
         self._verbose = False
         
@@ -26,7 +27,7 @@ class IDLParser():
 
     def load(self, input_str, include_dirs=[], filepath=None):
         self._dirs = self._dirs + include_dirs
-        lines = [l for l in input_str.split('\n')]
+        lines = [l for l in input_str.replace('\t',' ').split('\n')]
         self.parse_lines(lines, filepath=filepath)
         return self._global_module
 
@@ -77,7 +78,7 @@ class IDLParser():
 
         self.for_each_idl(get_fullpath)
         if len(included_filenames) > 0:
-            raise IDLCanNotFindException()
+            raise exception.IDLGenericException()
                 
         return included_filepaths
 
@@ -135,7 +136,7 @@ class IDLParser():
                     p = self._find_idl(filename, _include_paste)
                     if p is None:
                         sys.stdout.write(' # IDL (%s) can not be found.\n' % filename)
-                        raise IDLFileNotFoundErrorx
+                        raise exception.IDLFileNotFoundError()
                     self.parse_idl(idl_path = p)
 
                     inc_lines = []
@@ -152,7 +153,7 @@ class IDLParser():
                     p = self._find_idl(filename, _include_paste)
                     if p is None:
                         sys.stdout.write(' # IDL (%s) can not be found.\n' % filename)
-                        raise IDLFileNotFoundErrorx
+                        raise exception.IDLFileNotFoundError()
                     inc_lines = []
 
                     self.parse_idl(idl_path = p)

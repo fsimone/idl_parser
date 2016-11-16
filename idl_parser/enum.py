@@ -1,6 +1,6 @@
 import os, sys, traceback
 
-from . import node
+from . import node, exception
 sep = '::'
 
 class IDLEnumValue(node.IDLNode):
@@ -8,11 +8,15 @@ class IDLEnumValue(node.IDLNode):
         super(IDLEnumValue, self).__init__('IDLEnumValue', '', parent)
         self._verbose = True
         self._value = value
+        self._annotation = ''
 
     def parse_blocks(self, blocks, filepath=None):
         self._filepath = filepath
         if len(blocks) == 1:
             self._name = blocks[0]
+        elif len(blocks) == 2:
+            self._name = blocks[0]
+            self._annotation = blocks[1]
         else:
             sys.stdout.write('Unkown Enum format %s\n' % blocks)
         #name, type = self._name_and_type(blocks)
@@ -33,10 +37,14 @@ class IDLEnumValue(node.IDLNode):
                 'classname' : self.classname,
                 'value' : self.value }
         return dic
+    
     @property
     def value(self):
         return self._value
     
+    @property
+    def annotation(self):
+        return self._annotation
 
 
 
@@ -68,23 +76,23 @@ class IDLEnum(node.IDLNode):
     def parse_tokens(self, token_buf, filepath=None):
         self._filepath = filepath
         self._counter = 0
-        kakko = token_buf.pop()
-        if not kakko == '{':
-            if self._verbose: sys.stdout.write('# Error. No kakko "{".\n')
-            raise InvalidIDLSyntaxError()
+        brace = token_buf.pop()
+        if not brace == '{':
+            if self._verbose: sys.stdout.write('# Error. No brace "{".\n')
+            raise exception.InvalidIDLSyntaxError()
         
         block_tokens = []        
         while True:
             token = token_buf.pop()
             if token == None:
-                if self._verbose: sys.stdout.write('# Error. No kokka "}".\n')
-                raise InvalidIDLSyntaxError()
+                if self._verbose: sys.stdout.write('# Error. No brace "}".\n')
+                raise exception.InvalidIDLSyntaxError()
             
             elif token == '}':
                 token = token_buf.pop()
                 if not token == ';':
                     if self._verbose: sys.stdout.write('# Error. No semi-colon after "}".\n')
-                    raise InvalidIDLSyntaxError()
+                    raise exception.InvalidIDLSyntaxError()
 
                 if len(block_tokens) > 0:
                     self._parse_block(block_tokens)

@@ -40,7 +40,8 @@ class IDLTypedef(node.IDLNode):
     @property
     def type(self):
         if self._type.classname == 'IDLBasicType': # Struct
-            return self.root_node.find_types(self._type.name)[0]
+            if self.root_node.find_types(self._type.name).__len__() > 0:
+                return self.root_node.find_types(self._type.name)[0]
         return self._type
 
     def get_type(self, extract_typedef=False):

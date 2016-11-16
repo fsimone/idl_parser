@@ -21,6 +21,10 @@ class IDLNode(object):
     @property
     def is_struct(self):
         return self._classname == 'IDLStruct'
+    
+    @property
+    def is_union(self):
+        return self._classname == 'IDLUnion'
 
     @property
     def is_typedef(self):
@@ -56,9 +60,11 @@ class IDLNode(object):
     def name(self):
         return self._name
 
+    ''' BUG FIX commentato questo metodo
     @property
     def basename(self):
         return self._name.split(self.sep)[-1]
+    '''
 
     @property
     def basename(self):
@@ -78,12 +84,19 @@ class IDLNode(object):
         return self._parent
 
     def _name_and_type(self, blocks):
-        name = blocks[-1]
         type = ''
-        for t in blocks[:-1]:
-            type = type + ' ' + t
+        name = blocks[-1]
+        annotation = blocks[-2]
+        
+        if not annotation.startswith('@'):
+            annotation = ''
+            for t in blocks[:-1]:
+                type = type + ' ' + t
+        else:
+            for t in blocks[:-2]:
+                type = type + ' ' + t
         type = type.strip()
-        return (name, type)
+        return (name, type, annotation)
 
     @property
     def is_root(self):
@@ -107,9 +120,15 @@ class IDLNode(object):
             typ__ = self.refine_typename(typ_)
             return 'sequence < ' + typ__ + ' >'
         else:
-        #f True:
+        #if True:
             typs = global_module.find_types(typ)
             if len(typs) == 0:
                 return typ
             else:
-                return typs[0].full_path
+                def level_path(a):
+                    if isinstance(a, list):
+                        return level_path(a[0])
+                    return a.full_path
+
+                fullpath = level_path(typs).replace('::public','').replace('::protected','').replace('::private','')
+                return fullpath
