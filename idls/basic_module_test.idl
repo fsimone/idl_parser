@@ -1,53 +1,36 @@
 /******
- * This IDL is for test
+ * This IDL is for test towards parser CapnProto IDL
  */
 
-module my_module {
-  struct my_struct1 {
-    long long_member;
-  };
+channel my_channel {
+	module my_module {
+		interface my_interface {
+			struct my_struct1 {
+				long @0 long_member;
+			};
 
 
-  struct my_struct2 {
-    my_struct1 my_struct_member;
-  };
+			struct my_struct2 {
+				my_struct1 @0 my_struct_member;
+			};
 
-  struct my_struct3 {
-    octet octet_member;
-    char char_member;
-    wchar wchar_member;
-    string string_member;
-    unsigned short ushort_member;
-    short short_member;
-    unsigned long ulong_member;
-    long long_member;
-    float float_member;
-    double double_member;
-  };
+			struct my_struct3 {
+			    octet @0 octet_member;
+			    char @1 char_member;
+			    wchar @2 wchar_member;
+			    string @3 string_member;
+			    unsigned short @4 ushort_member;
+			    short @5 short_member;
+			    unsigned long @6 ulong_member;
+			    long @7 long_member;
+			    float @8 float_member;
+			    double @9 double_member;
+			};
 
 
-  typedef octet my_byte;
-  typedef my_struct1 my_struct_typedef;
-
-  interface my_interface1 {
-    long method1(in long long_arg, out double double_arg, inout short short_arg);
-    my_struct1 method2(in my_struct1 my_struct1_arg, out my_struct2 my_struct2_arg);
-  };
-
-  typedef sequence<double> DoubleSeq;
-
-  enum my_enum1 {
-    data1, 
-    data2,
-    data3,
-  };
-
-  const long value1 = -1;
-  const unsigned long value2 = 4;
-
-  typedef double Matrix34[3][4];
-
-  typedef unsigned long  Matrix3456[3][4][5][6];
-  
-};
+  			long method1(in long long_arg, out double double_arg, inout short short_arg);
+    			my_struct1 method2(in my_struct1 my_struct1_arg, out my_struct2 my_struct2_arg);
+		};
+	};
+}
 
