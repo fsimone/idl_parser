@@ -4,19 +4,75 @@ from . import node, exception
 
 sep = '::'
 
-primitive = [
+'''primitive = [
     'boolean',
-    'char', 'byte', 'octet', 
-    'short', 'wchar', 
-    'long', 'int',
+    'char', 
+    'byte',
+    'octet', 
+    'short',
+    'wchar', 
+    'long',
+    'int',
+    'float',
+    'double',
+    'string',
+    'wstring']'''
+
+
+primitive = [
+    'bool',
+    'int8_t',
+    'int16_t',
+    'int32_t',
+    'int64_t',
+    'int_fast8_t',
+    'int_fast16_t',
+    'int_fast32_t',
+    'int_fast64_t',
+    'int_least8_t',
+    'int_least16_t',
+    'int_least32_t',
+    'int_least64_t',
+    'intmax_t',
+    'intptr_t',
+    'uint8_t',
+    'uint16_t',
+    'uint32_t',
+    'uint64_t',
+    'uint_fast8_t',
+    'uint_fast16_t',
+    'uint_fast32_t',
+    'uint_fast64_t',
+    'uint_least8_t',
+    'uint_least16_t',
+    'uint_least32_t',
+    'uint_least64_t',
+    'uintmax_t',
+    'uintptr_t',
+    'char',    
+    'int',
+    'short',
+    'long',
     'float',
     'double',
     'string',
     'wstring']
+
+
+
+forbidden = ['unsigned','byte','octet']
+ 
+
            
 def is_primitive(name):
     for n in name.split(' '):
         if n in primitive:
+            return True
+    return False
+
+def is_forbidden(name):
+    for n in name.split(' '):
+        if n in forbidden:
             return True
     return False
 
@@ -27,6 +83,9 @@ def IDLType(name, parent):
         return IDLSequence(name, parent)
     elif name.find('[') >= 0:
         return IDLArray(name, parent)
+    
+    if is_forbidden(name):
+        raise exception.InvalidIDLSyntaxError("-- ERROR: Cannot use type %s in SmOptics IDL file !!!" %(name))
     
     if is_primitive(name):
         return IDLPrimitive(name, parent)

@@ -131,4 +131,8 @@ class IDLNode(object):
                     return a.full_path
 
                 fullpath = level_path(typs).replace('::public','').replace('::protected','').replace('::private','')
+                # Elimino i livelli di channel e module per il momento
+                type = fullpath[fullpath.rfind('::')+2:]
+                #interface = type[type.rfind('::')+2:]
+                fullpath = type
                 return fullpath

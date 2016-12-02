@@ -16,8 +16,11 @@ class IDLArgument(node.IDLNode):
 
     def parse_blocks(self, blocks, filepath=None):
         self._filepath= filepath
-        directions = ['in', 'out', 'inout']
+        directions = ['in', 'out']
+        nodirections = ['inout']
         self._dir = 'in'
+        if blocks[0] in nodirections:
+            raise exception.InvalidIDLSyntaxError("-- ERROR invalid direction for %s parameter" %(blocks[0]))
         if blocks[0] in directions:
             self._dir = blocks[0]
             blocks.pop(0)
